@@ -24,7 +24,7 @@ RUN addgroup -S appgroup && \
     adduser -SHD appuser -G appgroup && \
     chown appuser:appgroup -R /app
 USER appuser
-COPY ./src ./
+COPY --chown=appuser:appgroup ./src ./
 EXPOSE 8080
 
 
