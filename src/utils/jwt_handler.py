@@ -42,7 +42,7 @@ async def is_refresh_token(token: str) -> bool:
 
 def create_jwt_token(expires_delta: timedelta) -> str:
     """Создать JWT-токен с указанным временем жизни."""
-    now =  datetime.now(UTC)
+    now = datetime.now(UTC)
     payload = {
         "iat": now,
         "exp": now + expires_delta,
