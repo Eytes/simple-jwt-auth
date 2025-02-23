@@ -1,11 +1,7 @@
-from typing import Annotated
-
 from fastapi import FastAPI, status
 from datetime import timedelta
 
-from fastapi.params import Depends
-
-from schemas.token import TokenResponse
+from schemas.token import TokenResponse, TokenRequest, RefreshTokenRequest
 from utils.jwt_handler import (
     create_jwt_token,
     verify_jwt_token,
@@ -21,7 +17,7 @@ app = FastAPI(
 )
 
 
-@app.post(
+@app.get(
     "/api/tokens",
     response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
@@ -43,13 +39,13 @@ async def create_token() -> TokenResponse:
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
-@app.get(
+@app.post(
     "/api/tokens/verify",
     status_code=status.HTTP_200_OK,
 )
-async def verify_tokens(payload: Annotated[dict, Depends(verify_jwt_token)]) -> dict:
+async def verify_tokens(request: TokenRequest) -> dict:
     """Проверить токен и вернуть payload"""
-    return payload
+    return await verify_jwt_token(request.token)
 
 
 @app.post(
@@ -57,10 +53,10 @@ async def verify_tokens(payload: Annotated[dict, Depends(verify_jwt_token)]) -> 
     response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def rotate_tokens(refresh_token: str) -> TokenResponse:
-    """Выпустить новые access и refresh токены, на основе уже существующего refresh token"""
+async def rotate_tokens(request: RefreshTokenRequest) -> TokenResponse:
+    """Выпустить новые access и refresh токены на основе существующего refresh token"""
     new_access_token, new_refresh_token = (
-        await rotate_tokens_by_refresh_token(refresh_token)
+        await rotate_tokens_by_refresh_token(request.refresh_token)
     ).values()
     return TokenResponse(access_token=new_access_token, refresh_token=new_refresh_token)
 
