@@ -4,7 +4,7 @@ The microservice that is responsible for working with JWT
 
 - Creation
 - Validation
-- Revocation
+- Rotation
 
 ## Environment
 
